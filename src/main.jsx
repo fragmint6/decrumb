@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import { ArrowRight, Check, ChevronDown, Clock3, ExternalLink, Link2, LoaderCircle, Play, Sparkles, Users, X } from 'lucide-react'
 import './styles.css'
+import { parseInBrowser } from './recipeParser.js'
 
 const demoRecipes = {
   pasta: {
@@ -32,17 +33,34 @@ function App() {
   const [servings, setServings] = useState(4)
   const [notice, setNotice] = useState('')
 
-  function parseUrl(event) {
+  async function parseUrl(event) {
     event?.preventDefault()
-    if (!url.trim()) return setNotice('Paste a recipe link to get started.')
+    const recipeUrl = url.trim()
+    if (!recipeUrl) return setNotice('Paste a recipe link to get started.')
+    try { new URL(recipeUrl) } catch { return setNotice('Enter a complete http or https recipe URL.') }
     setNotice('')
     setStatus('loading')
-    setTimeout(() => {
-      const selected = /chicken|sheet|lemon/i.test(url) ? demoRecipes.chicken : demoRecipes.pasta
-      setRecipe(selected)
-      setServings(selected.servings)
+    try {
+      let parsed
+      try {
+        const response = await fetch('/api/parse', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: recipeUrl })
+        })
+        const body = await response.json().catch(() => ({}))
+        if (!response.ok) throw new Error(body.error || 'The Python parser could not read this recipe.')
+        parsed = body
+      } catch (pythonError) {
+        // A real JavaScript JSON-LD parser is the non-AI fallback. It works where the source permits CORS.
+        try { parsed = await parseInBrowser(recipeUrl) }
+        catch { throw pythonError }
+      }
+      setRecipe(parsed)
+      setServings(parsed.servings)
       setStatus('done')
-    }, 950)
+    } catch (error) {
+      setStatus('idle')
+      setNotice(error.message || 'We could not find a recipe at that URL.')
+    }
   }
 
   function loadDemo(key) {
