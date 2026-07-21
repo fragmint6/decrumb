@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "python3 server.py",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:python": "python3 -m unittest discover -s tests"
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
