@@ -1,5 +1,7 @@
 const $ = (id) => document.getElementById(id);
 
+const API = "https://decrumb.onrender.com";
+
 const form = $("form");
 const urlInput = $("url");
 const goBtn = $("go");
@@ -196,7 +198,7 @@ async function saveRecipe(user) {
 
   try {
     const token = await user.getIdToken();
-    const res = await fetch("/api/save", {
+    const res = await fetch(API + "/api/save", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -255,7 +257,7 @@ async function loadSavedRecipes() {
   savedEmpty.hidden = false;
   try {
     const token = await user.getIdToken();
-    const res = await fetch("/api/saved", {
+    const res = await fetch(API + "/api/saved", {
       headers: { "Authorization": "Bearer " + token }
     });
     if (!res.ok) return;
@@ -299,7 +301,7 @@ async function deleteRecipe(uid, recipeId) {
     const user = auth.currentUser;
     if (!user) return;
     const token = await user.getIdToken();
-    const res = await fetch("/api/save/" + encodeURIComponent(recipeId), {
+    const res = await fetch(API + "/api/save/" + encodeURIComponent(recipeId), {
       method: "DELETE",
       headers: { "Authorization": "Bearer " + token }
     });
@@ -316,7 +318,7 @@ async function deleteRecipe(uid, recipeId) {
 async function loadSavedCount() {
   try {
     const token = await auth.currentUser.getIdToken();
-    const res = await fetch("/api/saved", {
+    const res = await fetch(API + "/api/saved", {
       headers: { "Authorization": "Bearer " + token }
     });
     if (!res.ok) return;
@@ -357,7 +359,7 @@ form.addEventListener("submit", async (e) => {
   updateSaveButton(false);
 
     try {
-    const res = await fetch("/api/scrape", {
+    const res = await fetch(API + "/api/scrape", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ url }),
@@ -374,7 +376,7 @@ form.addEventListener("submit", async (e) => {
     if (user) {
       const token = await user.getIdToken();
       const recipeId = hashString(data.url || "");
-      const res2 = await fetch("/api/saved", {
+      const res2 = await fetch(API + "/api/saved", {
         headers: { "Authorization": "Bearer " + token }
       });
       if (res2.ok) {

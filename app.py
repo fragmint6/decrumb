@@ -9,6 +9,7 @@ import re
 import urllib.request
 import urllib.error
 from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 
 import firebase_admin
 from firebase_admin import credentials, firestore, auth as fb_auth
@@ -16,7 +17,8 @@ from firebase_admin.exceptions import FirebaseError
 
 from recipe_scrapers import scrape_html
 
-app = Flask(__name__, static_folder="static", static_url_path="")
+app = Flask(__name__, static_folder=".", static_url_path="")
+CORS(app)
 
 _firebase_available = False
 service_key = os.environ.get("SERVICE_ACCOUNT_KEY_JSON")
