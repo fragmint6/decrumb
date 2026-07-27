@@ -4,6 +4,7 @@ Run:  python app.py   ->  http://127.0.0.1:5000
 """
 
 import json
+import os
 import re
 import urllib.request
 import urllib.error
@@ -17,13 +18,27 @@ from recipe_scrapers import scrape_html
 
 app = Flask(__name__, static_folder="static", static_url_path="")
 
-try:
-    cred = credentials.Certificate("serviceAccountKey.json")
-    firebase_admin.initialize_app(cred)
-except FileNotFoundError:
-    pass
+_firebase_available = False
+service_key = os.environ.get("SERVICE_ACCOUNT_KEY_JSON")
+if service_key:
+    try:
+        cred = credentials.Certificate(json.loads(service_key))
+        firebase_admin.initialize_app(cred)
+        _firebase_available = True
+    except Exception:
+        pass
+else:
+    try:
+        cred = credentials.Certificate("serviceAccountKey.json")
+        firebase_admin.initialize_app(cred)
+        _firebase_available = True
+    except FileNotFoundError:
+        pass
 
-db = firestore.client()
+if _firebase_available:
+    db = firestore.client()
+else:
+    db = None
 
 UA = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 "
@@ -157,8 +172,16 @@ def _verify_token(req):
         return None, "Invalid token", 401
 
 
+def _require_db():
+    if db is None:
+        return jsonify(error="Database not configured."), 503
+
+
 @app.post("/api/save")
 def api_save():
+    err_resp = _require_db()
+    if err_resp:
+        return err_resp
     user, err, code = _verify_token(request)
     if err:
         return jsonify(error=err), code
@@ -175,6 +198,9 @@ def api_save():
 
 @app.get("/api/saved")
 def api_saved():
+    err_resp = _require_db()
+    if err_resp:
+        return err_resp
     user, err, code = _verify_token(request)
     if err:
         return jsonify(error=err), code
@@ -191,6 +217,9 @@ def api_saved():
 
 @app.delete("/api/save/<recipe_id>")
 def api_delete(recipe_id):
+    err_resp = _require_db()
+    if err_resp:
+        return err_resp
     user, err, code = _verify_token(request)
     if err:
         return jsonify(error=err), code
