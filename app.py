@@ -8,7 +8,7 @@ import os
 import re
 import urllib.request
 import urllib.error
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify
 from flask_cors import CORS
 
 import firebase_admin
@@ -268,7 +268,7 @@ def api_scrape():
 
 @app.get("/")
 def index():
-    return send_from_directory("static", "index.html")
+    return jsonify(status="ok", app="decrumb"), 200
 
 
 if __name__ == "__main__":
