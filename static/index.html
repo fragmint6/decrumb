@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decrumb — recipes without the life story</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <span class="mark">✂</span> Decrumb
+    </a>
+    <p class="tagline">Paste a recipe link. Get the recipe. Nothing else.</p>
+    <div class="nav-actions">
+      <button id="sign-in-btn" class="nav-btn" aria-label="Sign in" type="button" hidden>
+        <i class="fa-solid fa-right-to-bracket"></i> Sign in
+      </button>
+      <button id="saved-btn" class="theme-toggle" aria-label="Saved recipes" type="button" hidden>
+        <i class="fa-solid fa-folder"></i>
+        <span id="saved-count" class="badge" hidden>0</span>
+      </button>
+      <button id="sign-out-btn" class="nav-btn" aria-label="Sign out" type="button" hidden>
+        <i class="fa-solid fa-right-from-bracket"></i> Sign out
+      </button>
+      <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
+        <i class="icon-sun fa-solid fa-sun"></i>
+        <i class="icon-moon fa-solid fa-moon"></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Auth Modal -->
+<div id="auth-modal" class="modal" hidden>
+  <div class="modal-backdrop"></div>
+  <div class="modal-content">
+    <button id="auth-close" class="modal-close" aria-label="Close" type="button">&times;</button>
+    <h2 id="auth-heading">Save this recipe</h2>
+    <p id="auth-subheading">Sign in or create a free account to save recipes.</p>
+    <form id="auth-form" class="auth-form" novalidate>
+      <div class="form-group">
+        <label for="auth-email">Email</label>
+        <input id="auth-email" type="email" placeholder="you@example.com" required autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label for="auth-password">Password</label>
+        <input id="auth-password" type="password" placeholder="At least 6 characters" required minlength="6" autocomplete="current-password">
+      </div>
+      <div id="auth-error" class="auth-error" hidden></div>
+      <button id="auth-submit" type="submit" class="btn-primary">Create account</button>
+      <button type="button" id="auth-toggle-mode" class="btn-link">Already have an account? Sign in</button>
+    </form>
+    <div class="auth-divider"><span>or</span></div>
+    <button id="auth-google" type="button" class="btn-google">
+      <i class="fa-brands fa-google"></i> Continue with Google
+    </button>
+  </div>
+</div>
+
+<!-- Saved Recipes Popup -->
+<div id="saved-popup" class="popup" hidden>
+  <div class="popup-backdrop"></div>
+  <div class="popup-content">
+    <h2>Saved Recipes</h2>
+    <div id="saved-list" class="saved-list"></div>
+    <p id="saved-empty" class="saved-empty">No saved recipes yet.</p>
+    <button id="saved-close" class="btn-primary popup-close-btn" type="button">Close</button>
+  </div>
+</div>
+
+<main class="wrap">
+
+  <form id="form" class="searchbar" autocomplete="off">
+    <input id="url" type="text" inputmode="url" spellcheck="false"
+           placeholder="https://www.example.com/best-banana-bread">
+    <button id="go" type="submit">Decrumb</button>
+  </form>
+
+  <p class="hint" id="hint">
+    Works on hundreds of sites via <code>recipe-scrapers</code>, plus any page with schema.org recipe data.
+  </p>
+
+  <section id="status" class="status" hidden></section>
+
+  <article id="recipe" class="recipe" hidden>
+    <div class="recipe-head">
+      <div class="recipe-head-text">
+        <h1 id="r-title"></h1>
+        <p id="r-byline" class="byline"></p>
+        <p id="r-desc" class="desc"></p>
+        <ul id="r-meta" class="meta"></ul>
+      </div>
+      <img id="r-image" class="hero" alt="" hidden>
+    </div>
+
+      <div class="toolbar no-print">
+        <button type="button" data-act="print">Print</button>
+        <button type="button" data-act="copy">Copy as text</button>
+        <button type="button" data-act="scale" data-scale="1">Scale: 1×</button>
+        <button type="button" data-act="save" id="save-recipe-btn">
+          <i class="fa-regular fa-bookmark"></i> Save
+        </button>
+        <button type="button" data-act="reset">New link</button>
+        <a id="r-source" class="src" target="_blank" rel="noopener">View original ↗</a>
+      </div>
+
+    <div class="cols">
+      <section class="panel">
+        <h2>Ingredients</h2>
+        <div id="r-ingredients"></div>
+      </section>
+      <section class="panel">
+        <h2>Method</h2>
+        <div id="r-steps"></div>
+      </section>
+    </div>
+
+    <section id="r-nutrition-wrap" class="panel nutrition" hidden>
+      <h2>Nutrition</h2>
+      <ul id="r-nutrition" class="nutrition-list"></ul>
+    </section>
+  </article>
+
+</main>
+
+<footer class="wrap foot no-print">
+  <span>Tap an ingredient or step to check it off.</span>
+</footer>
+
+<script src="app.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,32 +1,61 @@
-# Decrumb
+# ✂ Decrumb
 
-A React recipe reader backed by a real, dependency-free Python parser. It downloads recipe pages server-side and extracts standard Schema.org `Recipe` JSON-LD. There is no AI parser or AI fallback. If the API is unavailable, the browser uses the equivalent JavaScript JSON-LD parser when the recipe site permits cross-origin requests.
+Paste a recipe URL, get just the recipe — no life story, no ads, no pop-ups.
 
-## Run locally
+Plain HTML + CSS + vanilla JS front end, with a ~130-line Flask backend that
+wraps [`recipe-scrapers`](https://github.com/hhursev/recipe-scrapers).
 
-Use two terminals:
+## Run
 
 ```bash
-npm install
-npm run dev:api
+pip install -r requirements.txt
+python app.py
+# open http://127.0.0.1:5000
 ```
 
-```bash
-npm run dev
+## Files
+
+| File | What it is |
+|---|---|
+| `app.py` | Flask app: fetches the page, runs `recipe-scrapers`, returns clean JSON |
+| `static/index.html` | Markup (no build step, no CDN, no framework) |
+| `static/style.css` | Styling, responsive layout, print stylesheet |
+| `static/app.js` | Fetch, render, checkboxes, scaling, copy, print |
+
+## Features
+
+- **Any supported site** — hundreds of hosts have dedicated parsers; anything
+  else falls back to `wild_mode=True` (schema.org / JSON-LD parsing).
+- **Ingredient & step groups** preserved (e.g. "For the sauce", "Garnish").
+- **Serving scaler** — cycles 1× → ½× → 2× → 3×, rewriting quantities in the
+  ingredient list, including unicode fractions (`1½ cups` → `¾ cups`).
+- **Tap to check off** any ingredient or step while cooking.
+- **Copy as plain text** (respects the current scale) and **Print** via a
+  dedicated print stylesheet.
+- **Deep links** — `?url=https://…` loads and scrapes automatically, so you can
+  make it a browser bookmarklet/search keyword.
+- Nutrition table when the site publishes it.
+
+## API
+
+```
+POST /api/scrape   {"url": "https://…"}
 ```
 
-Open the Vite URL (normally `http://localhost:5173`). Vite proxies `/api` to the Python service on `127.0.0.1:8000`.
+Returns `title, author, host, description, image, prep_time, cook_time,
+total_time, yields, category, cuisine, ratings, ingredient_groups,
+instruction_groups, nutrients, url` — every field individually guarded, so a
+scraper that doesn't implement something just yields `null` instead of a 500.
 
-## Parsing behavior
+## Notes
 
-1. `POST /api/parse` with `{ "url": "https://…" }` invokes the Python parser.
-2. The server validates public URLs, follows only validated redirects, limits downloads to 5 MB, and extracts ingredients, instructions, yield, time, image, and publisher from JSON-LD.
-3. If the API request fails, the frontend tries its JavaScript JSON-LD parser directly. Most sites block browser-side cross-origin reads, which is why Python remains the primary path.
-4. Parse failures are shown to the user; no sample recipe or AI-generated data is substituted.
+Some large publishers (AllRecipes, NYT Cooking, Serious Eats) sit behind bot
+protection and return `403`/`404` to a plain server-side request; the UI shows a
+friendly error for those. Tested working on BBC Good Food, RecipeTin Eats,
+Budget Bytes and similar.
 
-Run checks with:
+## Bookmarklet
 
-```bash
-npm run test:python
-npm run build
+```js
+javascript:location.href='http://127.0.0.1:5000/?url='+encodeURIComponent(location.href)
 ```
