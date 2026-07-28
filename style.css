@@ -1231,6 +1231,51 @@ ol.steps li.done::before {
   border-color: var(--accent);
 }
 
+/* ---------- loading overlay ---------- */
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  transition: opacity 0.35s ease;
+}
+
+.loading-overlay[hidden] {
+  display: flex !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-scissors {
+  font-size: 2.5rem;
+  color: var(--accent);
+  animation: pulse-scissors 1s ease-in-out infinite;
+}
+
+@keyframes pulse-scissors {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 @media print {
   .nav-actions, .toast, .modal, .popup { display: none !important; }
 }

@@ -28,6 +28,7 @@ const savedList = $("saved-list");
 const savedEmpty = $("saved-empty");
 const savedClose = $("saved-close");
 const saveRecipeBtn = $("save-recipe-btn");
+const loadingOverlay = $("loading-overlay");
 
 const firebaseConfig = {
   apiKey: "AIzaSyAM87IEWBd2WkgeOBDyMguv3ZyP7pr5NqY",
@@ -78,7 +79,7 @@ function updateNavbar(user) {
     signInBtn.hidden = true;
     signOutBtn.hidden = false;
     savedBtn.hidden = false;
-    loadSavedCount();
+    return loadSavedCount();
   } else {
     signInBtn.hidden = false;
     signOutBtn.hidden = true;
@@ -87,17 +88,19 @@ function updateNavbar(user) {
   }
 }
 
-auth.onAuthStateChanged((user) => {
-  updateNavbar(user);
-  if (user) {
-    if (pendingSaveUrl) {
-      saveRecipe(user);
-      pendingSaveUrl = null;
-    }
-  } else {
-    const keys = Object.keys(localStorage).filter(function (k) { return k.startsWith("savedCount_"); });
-    keys.forEach(function (k) { return localStorage.removeItem(k); });
+auth.onAuthStateChanged(async (user) => {
+  const p = updateNavbar(user);
+  if (p) await p;
+  if (user && pendingSaveUrl) {
+    await saveRecipe(user);
+    pendingSaveUrl = null;
   }
+  if (!user) {
+    Object.keys(localStorage)
+      .filter(function (k) { return k.startsWith("savedCount_"); })
+      .forEach(function (k) { localStorage.removeItem(k); });
+  }
+  loadingOverlay.hidden = true;
 });
 
 signInBtn.addEventListener("click", () => openAuthModal("Sign in to Decrumb", "Sign in to save and manage your recipes."));
