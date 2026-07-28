@@ -101,6 +101,24 @@ auth.onAuthStateChanged(async (user) => {
       .forEach(function (k) { localStorage.removeItem(k); });
   }
   loadingOverlay.hidden = true;
+  if (user && current && !pendingSaveUrl) {
+    const recipeId = hashString(current.url || "");
+    if (savedRecipesCache) {
+      updateSaveButton(savedRecipesCache.some(function (r) { return r.id === recipeId; }));
+    } else {
+      user.getIdToken().then(function (token) {
+        return fetch(API + "/api/saved", { headers: { "Authorization": "Bearer " + token } });
+      }).then(function (res) {
+        if (!res.ok) return null;
+        return res.json();
+      }).then(function (recipes) {
+        if (recipes) {
+          savedRecipesCache = recipes;
+          updateSaveButton(recipes.some(function (r) { return r.id === recipeId; }));
+        }
+      }).catch(function () {});
+    }
+  }
 });
 
 signInBtn.addEventListener("click", () => openAuthModal("Sign in to Decrumb", "Sign in to save and manage your recipes."));
@@ -527,7 +545,7 @@ function renderIngredients(r) {
     const ul = el("ul", "ing");
     g.items.forEach((item) => {
       const li = document.createElement("li");
-      li.innerHTML = scaleText(item, scale);
+      li.innerHTML = scaleText(cleanIngredient(item), scale);
       li.addEventListener("click", () => li.classList.toggle("done"));
       ul.appendChild(li);
     });
@@ -669,16 +687,18 @@ function fmtQty(v) {
   return String(whole || "");
 }
 
+function cleanIngredient(text) {
+  return text.replace(/\s+\d*[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]\s+\d+(?:[.,]\d+)?\s*$/, "").trim();
+}
+
 function scaleText(text, factor) {
   const safe = escapeHtml(text);
-  let out = safe.replace(QTY, (m) => {
+  return safe.replace(QTY, (m) => {
     const n = parseQty(m);
     if (!n) return m;
     const scaled = factor === 1 ? m.trim() : fmtQty(n * factor);
     return `<span class="qty">${scaled || m}</span>`;
   });
-  out = out.replace(/\s+(?:\d*\s*)?[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]\s+\d+(?:[.,]\d+)?\s*$/, "");
-  return out;
 }
 
 /* ---------------- helpers ---------------- */

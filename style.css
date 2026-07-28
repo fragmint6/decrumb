@@ -1226,8 +1226,8 @@ ol.steps li.done::before {
 .icon-btn {
   display: inline-flex !important;
   align-items: center !important;
-  justify-content: center;
-  gap: 0;
+  justify-content: flex-start;
+  gap: 0.4rem;
   max-width: 2.25rem;
   height: 2.25rem;
   padding: 0 !important;
@@ -1239,18 +1239,13 @@ ol.steps li.done::before {
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
-              gap 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
-              color var(--transition), background var(--transition),
-              border-color var(--transition);
+  transition: max-width 0.4s ease, color var(--transition),
+              background var(--transition), border-color var(--transition);
   flex-shrink: 0;
 }
 
 .icon-btn:hover {
-  max-width: 200px;
-  gap: 0.4rem;
-  padding-right: 0.85rem !important;
-  justify-content: flex-start !important;
+  max-width: 180px;
   color: var(--accent) !important;
   border-color: var(--accent) !important;
   background: var(--accent-soft) !important;
@@ -1268,12 +1263,13 @@ ol.steps li.done::before {
 }
 
 .icon-btn .icon-btn-label {
-  max-width: 0;
   overflow: hidden;
   white-space: nowrap;
   opacity: 0;
-  transition: max-width 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
-              opacity 0.3s ease 0.12s;
+  transition: opacity 0.2s ease 0.15s;
+  flex-shrink: 0;
+  max-width: 0;
+  transition: max-width 0.4s ease, opacity 0.2s ease 0.15s;
 }
 
 .icon-btn:hover .icon-btn-label {
