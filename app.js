@@ -41,11 +41,10 @@ const firebaseConfig = {
 
 let current = null;
 let scale = 1;
+let baseServings = null;
 let isSigningUp = true;
 let pendingSaveUrl = null;
 let savedRecipesCache = null;
-
-const SCALES = [1, 0.5, 2, 3];
 
 /* ---------------- firebase ---------------- */
 
@@ -401,6 +400,7 @@ form.addEventListener("submit", async (e) => {
     if (!res.ok) throw new Error(data.error || "Something went wrong.");
     current = data;
     scale = 1;
+    baseServings = parseYield(data.yields);
     render(data);
     setStatus(null);
     history.replaceState(null, "", "?url=" + encodeURIComponent(url));
@@ -482,6 +482,7 @@ function render(r) {
   renderNutrition(r);
 
   recipeEl.hidden = false;
+  updateServingsBtn();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
@@ -542,18 +543,17 @@ document.querySelector(".toolbar").addEventListener("click", (e) => {
 
   if (act === "print") window.print();
 
-  if (act === "reset") {
-    recipeEl.hidden = true;
-    urlInput.value = "";
-    urlInput.focus();
-    history.replaceState(null, "", location.pathname);
-    updateSaveButton(false);
-    pendingSaveUrl = null;
+  if (act === "share") {
+    const url = location.href;
+    navigator.clipboard.writeText(url).then(() => {
+      showToast("Link copied ✓");
+    });
   }
 
-  if (act === "scale") {
-    scale = SCALES[(SCALES.indexOf(scale) + 1) % SCALES.length];
-    btn.textContent = "Scale: " + fmtScale(scale) + "×";
+  if (act === "servings") {
+    const mults = [0.5, 1, 2, 3];
+    scale = mults[(mults.indexOf(scale) + 1) % mults.length];
+    updateServingsBtn();
     renderIngredients(current);
   }
 
@@ -668,7 +668,22 @@ function trim(s, n) {
   return s.length > n ? s.slice(0, n).replace(/\s+\S*$/, "") + "…" : s;
 }
 
-function fmtScale(s) { return s === 0.5 ? "½" : String(s); }
+function parseYield(y) {
+  if (!y) return null;
+  const m = String(y).match(/\d+/);
+  return m ? parseInt(m[0], 10) : null;
+}
+
+function updateServingsBtn() {
+  const btn = document.querySelector('[data-act="servings"]');
+  if (!btn) return;
+  if (baseServings) {
+    const s = Math.round(baseServings * scale);
+    btn.textContent = "Serves " + s;
+  } else {
+    btn.textContent = "Serves ?";
+  }
+}
 
 function escapeHtml(s) {
   return String(s == null ? "" : s)
