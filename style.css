@@ -197,11 +197,12 @@ body {
 }
 
 .theme-toggle:hover {
-  transform: rotate(15deg);
+  color: var(--accent);
+  border-color: var(--accent);
 }
 
 .theme-toggle:active {
-  transform: rotate(15deg) scale(0.92);
+  transform: scale(0.92);
 }
 
 .theme-toggle.icon-btn {
@@ -712,6 +713,7 @@ ol.steps li.done::before {
 
 #saved-btn {
   position: relative;
+  overflow: visible !important;
 }
 
 .badge {
@@ -1035,8 +1037,23 @@ ol.steps li.done::before {
   background: var(--accent-soft);
 }
 
-.saved-item-title {
+.saved-item-img {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.saved-item-info {
   flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.saved-item-title {
   font: 500 0.9rem system-ui, sans-serif;
   color: var(--text);
   white-space: nowrap;

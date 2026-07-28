@@ -228,12 +228,15 @@ function hashString(str) {
 
 function updateSaveButton(saved) {
   const icon = saveRecipeBtn.querySelector("i");
+  const label = saveRecipeBtn.querySelector(".icon-btn-label");
   if (saved) {
     icon.className = "fa-solid fa-bookmark";
     saveRecipeBtn.classList.add("saved");
+    if (label) label.textContent = "Saved";
   } else {
     icon.className = "fa-regular fa-bookmark";
     saveRecipeBtn.classList.remove("saved");
+    if (label) label.textContent = "Save";
   }
 }
 
@@ -295,22 +298,33 @@ function renderSavedRecipes(recipes) {
   recipes.forEach((r) => {
     const item = document.createElement("div");
     item.className = "saved-item";
+    const img = document.createElement("img");
+    img.className = "saved-item-img";
+    img.src = r.data && r.data.image ? r.data.image : "";
+    img.alt = "";
+    img.loading = "lazy";
+    item.appendChild(img);
+    const info = document.createElement("div");
+    info.className = "saved-item-info";
     const title = document.createElement("span");
     title.className = "saved-item-title";
     title.textContent = r.data && r.data.title ? r.data.title : "Untitled recipe";
-    item.appendChild(title);
+    info.appendChild(title);
     const src = document.createElement("span");
     src.className = "saved-item-host";
     src.textContent = r.data && r.data.host ? r.data.host : "";
-    item.appendChild(src);
+    info.appendChild(src);
+    item.appendChild(info);
     const del = document.createElement("button");
     del.type = "button";
     del.className = "saved-item-del";
     del.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-    del.addEventListener("click", () => deleteRecipe(auth.currentUser.uid, r.id));
+    del.addEventListener("click", (e) => {
+      e.stopPropagation();
+      deleteRecipe(auth.currentUser.uid, r.id);
+    });
     item.appendChild(del);
-    item.addEventListener("click", (e) => {
-      if (e.target.closest(".saved-item-del")) return;
+    item.addEventListener("click", () => {
       if (r.data && r.data.url) {
         closeSavedPopup();
         urlInput.value = r.data.url;
@@ -322,6 +336,7 @@ function renderSavedRecipes(recipes) {
 }
 
 async function deleteRecipe(uid, recipeId) {
+  if (!confirm("Remove this recipe from your saved recipes?")) return;
   try {
     const user = auth.currentUser;
     if (!user) return;
