@@ -89,9 +89,14 @@ function updateNavbar(user) {
 
 auth.onAuthStateChanged((user) => {
   updateNavbar(user);
-  if (user && pendingSaveUrl) {
-    saveRecipe(user);
-    pendingSaveUrl = null;
+  if (user) {
+    if (pendingSaveUrl) {
+      saveRecipe(user);
+      pendingSaveUrl = null;
+    }
+  } else {
+    const keys = Object.keys(localStorage).filter(function (k) { return k.startsWith("savedCount_"); });
+    keys.forEach(function (k) { return localStorage.removeItem(k); });
   }
 });
 
@@ -360,6 +365,13 @@ async function deleteRecipe(uid, recipeId) {
 }
 
 async function loadSavedCount() {
+  const uid = auth.currentUser.uid;
+  const cached = localStorage.getItem("savedCount_" + uid);
+  if (cached !== null) {
+    const n = parseInt(cached, 10);
+    savedCount.textContent = n;
+    savedCount.hidden = n === 0;
+  }
   if (savedRecipesCache) {
     savedCount.textContent = savedRecipesCache.length;
     savedCount.hidden = savedRecipesCache.length === 0;
@@ -375,8 +387,8 @@ async function loadSavedCount() {
     savedRecipesCache = recipes;
     savedCount.textContent = recipes.length;
     savedCount.hidden = recipes.length === 0;
+    localStorage.setItem("savedCount_" + uid, String(recipes.length));
   } catch (err) {
-    // silently fail
   }
 }
 
