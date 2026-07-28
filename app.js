@@ -43,6 +43,7 @@ let current = null;
 let scale = 1;
 let isSigningUp = true;
 let pendingSaveUrl = null;
+let savedRecipesCache = null;
 
 const SCALES = [1, 0.5, 2, 3];
 
@@ -209,6 +210,7 @@ async function saveRecipe(user) {
     if (!res.ok) throw new Error("Failed to save");
     showToast("Recipe saved ✓");
     updateSaveButton(true);
+    savedRecipesCache = null;
     if (auth.currentUser) loadSavedCount();
   } catch (err) {
     showToast("Could not save recipe.");
@@ -253,8 +255,20 @@ function closeSavedPopup() {
 async function loadSavedRecipes() {
   const user = auth.currentUser;
   if (!user) return;
-  savedList.innerHTML = "";
-  savedEmpty.hidden = false;
+
+  if (!savedRecipesCache) {
+    savedList.innerHTML = "";
+    for (let i = 0; i < 5; i++) {
+      const sk = document.createElement("div");
+      sk.className = "skeleton-item";
+      sk.innerHTML = '<div class="skeleton-line skeleton-title"></div><div class="skeleton-line skeleton-host"></div>';
+      savedList.appendChild(sk);
+    }
+    savedEmpty.hidden = true;
+  } else {
+    renderSavedRecipes(savedRecipesCache);
+  }
+
   try {
     const token = await user.getIdToken();
     const res = await fetch(API + "/api/saved", {
@@ -262,38 +276,50 @@ async function loadSavedRecipes() {
     });
     if (!res.ok) return;
     const recipes = await res.json();
-    if (!recipes.length) return;
-    savedEmpty.hidden = true;
-    recipes.forEach((r) => {
-      const item = document.createElement("div");
-      item.className = "saved-item";
-      const title = document.createElement("span");
-      title.className = "saved-item-title";
-      title.textContent = r.data && r.data.title ? r.data.title : "Untitled recipe";
-      item.appendChild(title);
-      const src = document.createElement("span");
-      src.className = "saved-item-host";
-      src.textContent = r.data && r.data.host ? r.data.host : "";
-      item.appendChild(src);
-      const del = document.createElement("button");
-      del.type = "button";
-      del.className = "saved-item-del";
-      del.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-      del.addEventListener("click", () => deleteRecipe(user.uid, r.id));
-      item.appendChild(del);
-      item.addEventListener("click", (e) => {
-        if (e.target.closest(".saved-item-del")) return;
-        if (r.data && r.data.url) {
-          closeSavedPopup();
-          urlInput.value = r.data.url;
-          form.requestSubmit();
-        }
-      });
-      savedList.appendChild(item);
-    });
+    savedRecipesCache = recipes;
+    renderSavedRecipes(recipes);
   } catch (err) {
-    // silently fail
+    if (!savedRecipesCache) {
+      savedList.innerHTML = "";
+      savedEmpty.hidden = false;
+    }
   }
+}
+
+function renderSavedRecipes(recipes) {
+  savedList.innerHTML = "";
+  if (!recipes.length) {
+    savedEmpty.hidden = false;
+    return;
+  }
+  savedEmpty.hidden = true;
+  recipes.forEach((r) => {
+    const item = document.createElement("div");
+    item.className = "saved-item";
+    const title = document.createElement("span");
+    title.className = "saved-item-title";
+    title.textContent = r.data && r.data.title ? r.data.title : "Untitled recipe";
+    item.appendChild(title);
+    const src = document.createElement("span");
+    src.className = "saved-item-host";
+    src.textContent = r.data && r.data.host ? r.data.host : "";
+    item.appendChild(src);
+    const del = document.createElement("button");
+    del.type = "button";
+    del.className = "saved-item-del";
+    del.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+    del.addEventListener("click", () => deleteRecipe(auth.currentUser.uid, r.id));
+    item.appendChild(del);
+    item.addEventListener("click", (e) => {
+      if (e.target.closest(".saved-item-del")) return;
+      if (r.data && r.data.url) {
+        closeSavedPopup();
+        urlInput.value = r.data.url;
+        form.requestSubmit();
+      }
+    });
+    savedList.appendChild(item);
+  });
 }
 
 async function deleteRecipe(uid, recipeId) {
@@ -307,6 +333,7 @@ async function deleteRecipe(uid, recipeId) {
     });
     if (!res.ok) throw new Error("Delete failed");
     showToast("Recipe removed.");
+    savedRecipesCache = null;
     loadSavedRecipes();
     if (auth.currentUser) loadSavedCount();
     updateSaveButton(false);
@@ -316,6 +343,11 @@ async function deleteRecipe(uid, recipeId) {
 }
 
 async function loadSavedCount() {
+  if (savedRecipesCache) {
+    savedCount.textContent = savedRecipesCache.length;
+    savedCount.hidden = savedRecipesCache.length === 0;
+    return;
+  }
   try {
     const token = await auth.currentUser.getIdToken();
     const res = await fetch(API + "/api/saved", {
@@ -323,6 +355,7 @@ async function loadSavedCount() {
     });
     if (!res.ok) return;
     const recipes = await res.json();
+    savedRecipesCache = recipes;
     savedCount.textContent = recipes.length;
     savedCount.hidden = recipes.length === 0;
   } catch (err) {
@@ -374,15 +407,22 @@ form.addEventListener("submit", async (e) => {
     pendingSaveUrl = null;
     const user = auth.currentUser;
     if (user) {
-      const token = await user.getIdToken();
       const recipeId = hashString(data.url || "");
-      const res2 = await fetch(API + "/api/saved", {
-        headers: { "Authorization": "Bearer " + token }
-      });
-      if (res2.ok) {
-        const recipes = await res2.json();
-        const saved = recipes.some((r) => r.id === recipeId);
-        updateSaveButton(saved);
+      const cacheHit = savedRecipesCache && savedRecipesCache.some((r) => r.id === recipeId);
+      if (savedRecipesCache) {
+        updateSaveButton(cacheHit);
+      } else {
+        try {
+          const token = await user.getIdToken();
+          const res2 = await fetch(API + "/api/saved", {
+            headers: { "Authorization": "Bearer " + token }
+          });
+          if (res2.ok) {
+            const recipes = await res2.json();
+            savedRecipesCache = recipes;
+            updateSaveButton(recipes.some((r) => r.id === recipeId));
+          }
+        } catch (e) {}
       }
     }
   } catch (err) {

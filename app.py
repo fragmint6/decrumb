@@ -65,6 +65,28 @@ SIMPLE_FIELDS = [
 ]
 
 
+COURSE_NAMES = {
+    "appetizer", "starter", "entree", "main", "main course", "main dish",
+    "side", "side dish", "dessert", "breakfast", "brunch", "lunch", "dinner",
+    "snack", "drink", "beverage", "cocktail", "soup", "salad", "bread",
+    "condiment", "sauce", "marinade", "dip", "spread",
+}
+
+
+def clean_category(raw):
+    if not raw:
+        return None
+    if isinstance(raw, list):
+        parts = [str(p).strip() for p in raw if p]
+    else:
+        parts = re.split(r'[,;/]+', str(raw))
+        parts = [p.strip() for p in parts if p.strip()]
+    if not parts:
+        return raw
+    courses = [p for p in parts if p.lower() in COURSE_NAMES]
+    return ", ".join(courses) if courses else ", ".join(parts)
+
+
 def try_get(scraper, name):
     try:
         value = getattr(scraper, name)()
@@ -257,6 +279,7 @@ def api_scrape():
     except Exception as e:
         return jsonify(error=f"No recipe found on that page ({e})."), 422
     data = {f: try_get(scraper, f) for f in SIMPLE_FIELDS}
+    data["category"] = clean_category(data.get("category"))
     data["url"] = try_get(scraper, "canonical_url") or url
     data["ingredient_groups"] = normalise_ingredients(scraper)
     data["instruction_groups"] = normalise_instructions(scraper)

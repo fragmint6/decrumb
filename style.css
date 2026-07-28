@@ -938,6 +938,46 @@ ol.steps li.done::before {
   padding: var(--space-xl) 0;
 }
 
+.saved-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.skeleton-item {
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  background: var(--bg);
+}
+
+.skeleton-line {
+  height: 0.85rem;
+  background: var(--skeleton);
+  border-radius: var(--radius-sm);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-line::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.skeleton-title { width: 70%; }
+.skeleton-host { width: 40%; height: 0.65rem; }
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
 .saved-item {
   display: flex;
   align-items: center;
