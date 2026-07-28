@@ -572,13 +572,10 @@ document.querySelector(".toolbar").addEventListener("click", (e) => {
   }
 
   if (act === "servings-up" || act === "servings-down") {
-    const mults = [0.5, 1, 2, 3];
-    const idx = mults.indexOf(scale);
-    if (act === "servings-up") {
-      scale = mults[(idx + 1) % mults.length];
-    } else {
-      scale = mults[(idx - 1 + mults.length) % mults.length];
-    }
+    if (!baseServings) return;
+    const cur = baseServings * scale;
+    const next = act === "servings-up" ? cur + 1 : Math.max(0.5, cur - 1);
+    scale = next / baseServings;
     updateServingsBtn();
     renderIngredients(current);
   }
