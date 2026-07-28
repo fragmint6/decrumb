@@ -544,15 +544,23 @@ document.querySelector(".toolbar").addEventListener("click", (e) => {
   if (act === "print") window.print();
 
   if (act === "share") {
-    const url = location.href;
-    navigator.clipboard.writeText(url).then(() => {
-      showToast("Link copied ✓");
-    });
+    if (navigator.share) {
+      navigator.share({ title: document.title, url: location.href }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(location.href).then(() => {
+        showToast("Link copied ✓");
+      });
+    }
   }
 
-  if (act === "servings") {
+  if (act === "servings-up" || act === "servings-down") {
     const mults = [0.5, 1, 2, 3];
-    scale = mults[(mults.indexOf(scale) + 1) % mults.length];
+    const idx = mults.indexOf(scale);
+    if (act === "servings-up") {
+      scale = mults[(idx + 1) % mults.length];
+    } else {
+      scale = mults[(idx - 1 + mults.length) % mults.length];
+    }
     updateServingsBtn();
     renderIngredients(current);
   }
@@ -675,13 +683,13 @@ function parseYield(y) {
 }
 
 function updateServingsBtn() {
-  const btn = document.querySelector('[data-act="servings"]');
-  if (!btn) return;
+  const label = document.querySelector("[data-servings-label]");
+  if (!label) return;
   if (baseServings) {
     const s = Math.round(baseServings * scale);
-    btn.textContent = "Serves " + s;
+    label.textContent = "Serves " + s;
   } else {
-    btn.textContent = "Serves ?";
+    label.textContent = "Serves ?";
   }
 }
 

@@ -104,7 +104,11 @@
       <div class="toolbar no-print">
         <button type="button" data-act="print">Print</button>
         <button type="button" data-act="copy">Copy as text</button>
-        <button type="button" data-act="servings">Serves ?</button>
+        <span class="servings-group">
+          <button type="button" data-act="servings-down" aria-label="Decrease servings">−</button>
+          <span data-servings-label>Serves ?</span>
+          <button type="button" data-act="servings-up" aria-label="Increase servings">+</button>
+        </span>
         <button type="button" data-act="save" id="save-recipe-btn">
           <i class="fa-regular fa-bookmark"></i> Save
         </button>

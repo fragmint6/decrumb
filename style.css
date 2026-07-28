@@ -446,6 +446,34 @@ body {
   transform: scale(0.97);
 }
 
+.servings-group {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.servings-group button {
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0.45rem 0.65rem;
+}
+
+.servings-group button:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.servings-group span {
+  padding: 0.45rem 0.5rem;
+  font: 500 13px system-ui, sans-serif;
+  color: var(--text);
+  min-width: 4.5rem;
+  text-align: center;
+  user-select: none;
+}
+
 .src {
   margin-left: auto;
   font: 13px system-ui, sans-serif;
