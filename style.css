@@ -13,7 +13,9 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.07);
   --shadow-lg: 0 8px 30px rgba(0,0,0,0.08);
-  --transition: 0.2s ease;
+  --transition: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --bounce: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   --bg: #f5f5f7;
   --bg-card: #ffffff;
   --text: #1d1d1f;
@@ -199,6 +201,7 @@ body {
 .theme-toggle:hover {
   color: var(--accent);
   border-color: var(--accent);
+  box-shadow: 0 0 16px var(--focus-ring);
 }
 
 .theme-toggle:active {
@@ -240,7 +243,7 @@ body {
 
 .searchbar input:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 4px var(--focus-ring);
+  box-shadow: 0 0 0 4px var(--focus-ring), 0 2px 12px rgba(0,0,0,0.05);
 }
 
 .searchbar input::placeholder {
@@ -256,17 +259,18 @@ body {
   border: 0;
   border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background var(--transition), transform 0.1s ease,
-              opacity var(--transition);
+  transition: background var(--transition), transform var(--bounce),
+              opacity var(--transition), box-shadow var(--transition);
   white-space: nowrap;
 }
 
 .searchbar button:hover {
   background: var(--accent-hover);
+  box-shadow: 0 4px 16px rgba(232,93,58,0.35);
 }
 
 .searchbar button:active {
-  transform: scale(0.97);
+  transform: scale(0.95);
 }
 
 .searchbar button[disabled] {
@@ -324,7 +328,18 @@ body {
 
 .recipe {
   padding-bottom: var(--space-2xl);
-  animation: fadeSlideUp 0.35s ease;
+  animation: recipeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes recipeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadeSlideUp {
@@ -392,7 +407,16 @@ body {
   background: var(--bg);
   color: var(--text-muted);
   transition: background var(--transition), border-color var(--transition),
-              color var(--transition);
+              color var(--transition), transform var(--bounce);
+  cursor: default;
+}
+
+.meta li:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .meta li b {
@@ -409,7 +433,13 @@ body {
   border: 1px solid var(--border-light);
   flex: none;
   box-shadow: var(--shadow-sm);
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition),
+              transform var(--transition-slow);
+}
+
+.hero:hover {
+  transform: scale(1.02);
+  box-shadow: var(--shadow-md);
 }
 
 @media (max-width: 600px) {
@@ -436,7 +466,8 @@ body {
   border-radius: var(--radius-sm);
   color: var(--text);
   cursor: pointer;
-  transition: all var(--transition);
+  transition: background var(--transition), border-color var(--transition),
+              color var(--transition), transform var(--bounce);
 }
 
 .toolbar button:hover {
@@ -446,7 +477,7 @@ body {
 }
 
 .toolbar button:active {
-  transform: scale(0.97);
+  transform: scale(0.94);
 }
 
 .servings-group {
@@ -530,8 +561,18 @@ body {
   padding: var(--space-lg);
   box-shadow: var(--shadow-sm);
   transition: background var(--transition), border-color var(--transition),
-              box-shadow var(--transition);
+              box-shadow var(--transition-slow), transform var(--transition-slow);
+  animation: panelIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel:nth-child(1) { animation-delay: 0.05s; }
+.panel:nth-child(2) { animation-delay: 0.15s; }
+.panel:nth-child(3) { animation-delay: 0.25s; }
 
 .panel h2 {
   margin: 0 0 var(--space-md);
@@ -564,7 +605,7 @@ ul.ing li {
   border-bottom: 1px solid var(--border-light);
   position: relative;
   cursor: pointer;
-  transition: color var(--transition), border-color var(--transition);
+  transition: color var(--transition-slow), border-color var(--transition);
   line-height: 1.5;
 }
 
@@ -590,6 +631,12 @@ ul.ing li:hover::before {
 ul.ing li.done {
   color: var(--text-muted);
   text-decoration: line-through;
+  animation: strikeThrough 0.3s ease;
+}
+
+@keyframes strikeThrough {
+  from { opacity: 0.6; transform: translateX(-4px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 ul.ing li.done::before {
@@ -628,12 +675,14 @@ ol.steps li::before {
   background: var(--step-bg);
   color: var(--step-color);
   font: 600 0.82rem system-ui, sans-serif;
-  transition: background var(--transition), color var(--transition);
+  transition: background var(--transition), color var(--transition),
+              transform var(--bounce);
 }
 
 ol.steps li:hover::before {
   background: var(--accent-soft);
   color: var(--accent);
+  transform: scale(1.12);
 }
 
 ol.steps li.done { color: var(--text-muted); }
@@ -665,7 +714,14 @@ ol.steps li.done::before {
   display: flex;
   justify-content: space-between;
   gap: var(--space-sm);
-  transition: background var(--transition), border-color var(--transition);
+  transition: background var(--transition), border-color var(--transition),
+              transform var(--transition);
+}
+
+.nutrition-list li:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  transform: translateY(-1px);
 }
 
 .nutrition-list span { color: var(--text-muted); transition: color var(--transition); }
@@ -707,17 +763,19 @@ ol.steps li.done::before {
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: background var(--transition), color var(--transition),
-              border-color var(--transition), transform 0.15s ease;
+              border-color var(--transition), transform var(--bounce),
+              box-shadow var(--transition);
   white-space: nowrap;
 }
 
 .nav-btn:hover {
   color: var(--accent);
   border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
 }
 
 .nav-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.93);
 }
 
 .nav-btn:disabled {
@@ -769,6 +827,12 @@ ol.steps li.done::before {
   inset: 0;
   background: rgba(0,0,0,0.5);
   backdrop-filter: blur(4px);
+  animation: backdropIn 0.25s ease;
+}
+
+@keyframes backdropIn {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(4px); }
 }
 
 .modal-content {
@@ -1078,14 +1142,20 @@ ol.steps li.done::before {
   background: var(--bg);
   cursor: pointer;
   overflow: hidden;
-  transition: border-color var(--transition), box-shadow var(--transition);
+  transition: border-color var(--transition), box-shadow var(--transition-slow),
+              transform var(--transition-slow);
   display: flex;
   flex-direction: column;
 }
 
 .saved-item:hover {
   border-color: var(--accent);
-  box-shadow: 0 2px 12px var(--shadow);
+  box-shadow: 0 8px 24px var(--shadow);
+  transform: translateY(-2px);
+}
+
+.saved-item:hover .saved-item-img {
+  transform: scale(1.05);
 }
 
 .saved-item-img {
@@ -1094,6 +1164,7 @@ ol.steps li.done::before {
   object-fit: cover;
   display: block;
   background: var(--skeleton);
+  transition: transform 0.3s ease;
 }
 
 .saved-item-body {
@@ -1156,7 +1227,7 @@ ol.steps li.done::before {
   font: 500 0.88rem system-ui, sans-serif;
   box-shadow: var(--shadow-lg);
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition: opacity 0.3s ease, transform var(--bounce);
   z-index: 2000;
   pointer-events: none;
 }
@@ -1202,7 +1273,7 @@ ol.steps li.done::before {
 }
 
 .icon-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.92);
 }
 
 .icon-btn i {
@@ -1227,8 +1298,8 @@ ol.steps li.done::before {
 }
 
 #save-recipe-btn.saved {
-  color: var(--accent);
-  border-color: var(--accent);
+  color: #f59e0b !important;
+  border-color: #f59e0b !important;
 }
 
 /* ---------- loading overlay ---------- */
@@ -1243,24 +1314,30 @@ ol.steps li.done::before {
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.45s ease, transform 0.45s ease, backdrop-filter 0.45s ease;
 }
 
 .loading-overlay[hidden] {
   display: flex !important;
   opacity: 0;
+  transform: scale(1.03);
+  backdrop-filter: blur(0px);
   pointer-events: none;
+}
+
+.loading-overlay:not([hidden]) {
+  backdrop-filter: blur(2px);
 }
 
 .loading-scissors {
   font-size: 2.5rem;
   color: var(--accent);
-  animation: pulse-scissors 1s ease-in-out infinite;
+  animation: pulse-scissors 0.8s ease-in-out infinite;
 }
 
 @keyframes pulse-scissors {
-  0%, 100% { transform: scale(1); opacity: 0.8; }
-  50% { transform: scale(1.15); opacity: 1; }
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.15) rotate(-8deg); opacity: 1; }
 }
 
 .loading-spinner {
@@ -1269,7 +1346,7 @@ ol.steps li.done::before {
   border: 2px solid var(--border);
   border-top-color: var(--accent);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {

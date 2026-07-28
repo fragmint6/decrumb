@@ -589,7 +589,7 @@ document.querySelector(".toolbar").addEventListener("click", (e) => {
   if (act === "servings-up" || act === "servings-down") {
     if (!baseServings) return;
     const cur = baseServings * scale;
-    const next = act === "servings-up" ? cur + 1 : Math.max(0.5, cur - 1);
+    const next = act === "servings-up" ? cur + 0.5 : Math.max(0.5, cur - 0.5);
     scale = next / baseServings;
     updateServingsBtn();
     renderIngredients(current);
