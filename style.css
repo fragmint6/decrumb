@@ -449,15 +449,25 @@ body {
 .servings-group {
   display: inline-flex;
   align-items: center;
+  height: 2.25rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-full);
   overflow: hidden;
+  background: var(--bg-card);
+  flex-shrink: 0;
 }
 
 .servings-group button {
   border: 0 !important;
   border-radius: 0 !important;
-  padding: 0.45rem 0.65rem;
+  background: none !important;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  font: 500 1.1rem system-ui, sans-serif;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color var(--transition), background var(--transition);
 }
 
 .servings-group button:hover {
@@ -466,10 +476,10 @@ body {
 }
 
 .servings-group span {
-  padding: 0.45rem 0.5rem;
-  font: 500 13px system-ui, sans-serif;
+  padding: 0 0.5rem;
+  font: 500 0.82rem system-ui, sans-serif;
   color: var(--text);
-  min-width: 4.5rem;
+  min-width: 3.5rem;
   text-align: center;
   user-select: none;
 }
@@ -1117,13 +1127,6 @@ ol.steps li.done::before {
   background: var(--accent-soft) !important;
 }
 
-.icon-btn:hover {
-  max-width: 200px;
-  gap: 0.35rem;
-  padding-right: 0.85rem !important;
-  justify-content: flex-start !important;
-}
-
 .icon-btn i {
   flex-shrink: 0;
   width: 2.25rem;
@@ -1132,11 +1135,15 @@ ol.steps li.done::before {
 }
 
 .icon-btn .icon-btn-label {
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.15s ease 0.05s;
+  transition: max-width 0.25s ease, opacity 0.15s ease 0.05s;
 }
 
 .icon-btn:hover .icon-btn-label {
+  max-width: 150px;
   opacity: 1;
 }
 
