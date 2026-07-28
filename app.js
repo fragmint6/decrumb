@@ -686,8 +686,8 @@ function updateServingsBtn() {
   const label = document.querySelector("[data-servings-label]");
   if (!label) return;
   if (baseServings) {
-    const s = Math.round(baseServings * scale);
-    label.textContent = "Serves " + s;
+    const v = baseServings * scale;
+    label.textContent = "Serves " + fmtQty(v);
   } else {
     label.textContent = "Serves ?";
   }

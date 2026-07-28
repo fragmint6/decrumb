@@ -1084,10 +1084,60 @@ ol.steps li.done::before {
   transform: translateX(-50%) translateY(0);
 }
 
-/* ---------- save btn in recipe toolbar ---------- */
+/* ---------- icon buttons (slide-out label on hover) ---------- */
 
-#save-recipe-btn i {
-  margin-right: 0.25rem;
+.icon-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center;
+  gap: 0;
+  max-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 !important;
+  border-radius: var(--radius-full) !important;
+  font: 500 0.82rem system-ui, sans-serif !important;
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-muted) !important;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.25s ease, border-color var(--transition),
+              color var(--transition), background var(--transition);
+  flex-shrink: 0;
+}
+
+.icon-btn:hover {
+  max-width: 200px;
+  gap: 0.35rem;
+  padding-right: 0.85rem !important;
+  justify-content: flex-start !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+  background: var(--accent-soft) !important;
+}
+
+.icon-btn:hover {
+  max-width: 200px;
+  gap: 0.35rem;
+  padding-right: 0.85rem !important;
+  justify-content: flex-start !important;
+}
+
+.icon-btn i {
+  flex-shrink: 0;
+  width: 2.25rem;
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.icon-btn .icon-btn-label {
+  opacity: 0;
+  transition: opacity 0.15s ease 0.05s;
+}
+
+.icon-btn:hover .icon-btn-label {
+  opacity: 1;
 }
 
 #save-recipe-btn.saved {

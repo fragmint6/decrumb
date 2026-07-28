@@ -27,8 +27,9 @@
         <i class="fa-solid fa-folder"></i>
         <span id="saved-count" class="badge" hidden>0</span>
       </button>
-      <button id="sign-out-btn" class="nav-btn" aria-label="Sign out" type="button" hidden>
-        <i class="fa-solid fa-right-from-bracket"></i> Sign out
+      <button id="sign-out-btn" class="nav-btn icon-btn" aria-label="Sign out" type="button" hidden>
+        <i class="fa-solid fa-right-from-bracket"></i>
+        <span class="icon-btn-label">Sign out</span>
       </button>
       <button id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" type="button">
         <i class="icon-sun fa-solid fa-sun"></i>
@@ -102,17 +103,27 @@
     </div>
 
       <div class="toolbar no-print">
-        <button type="button" data-act="print">Print</button>
-        <button type="button" data-act="copy">Copy as text</button>
+        <button type="button" data-act="print" class="icon-btn" aria-label="Print">
+          <i class="fa-solid fa-print"></i>
+          <span class="icon-btn-label">Print</span>
+        </button>
+        <button type="button" data-act="copy" class="icon-btn" aria-label="Copy as text">
+          <i class="fa-solid fa-copy"></i>
+          <span class="icon-btn-label">Copy</span>
+        </button>
         <span class="servings-group">
           <button type="button" data-act="servings-down" aria-label="Decrease servings">−</button>
           <span data-servings-label>Serves ?</span>
           <button type="button" data-act="servings-up" aria-label="Increase servings">+</button>
         </span>
-        <button type="button" data-act="save" id="save-recipe-btn">
-          <i class="fa-regular fa-bookmark"></i> Save
+        <button type="button" data-act="save" id="save-recipe-btn" class="icon-btn" aria-label="Save">
+          <i class="fa-regular fa-bookmark"></i>
+          <span class="icon-btn-label">Save</span>
         </button>
-        <button type="button" data-act="share"><i class="fa-solid fa-share-nodes"></i> Share</button>
+        <button type="button" data-act="share" class="icon-btn" aria-label="Share">
+          <i class="fa-solid fa-share-nodes"></i>
+          <span class="icon-btn-label">Share</span>
+        </button>
         <a id="r-source" class="src" target="_blank" rel="noopener">View original ↗</a>
       </div>
 
