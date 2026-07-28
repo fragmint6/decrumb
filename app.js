@@ -688,7 +688,7 @@ function fmtQty(v) {
 }
 
 function cleanIngredient(text) {
-  return text.replace(/\s+\d*[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]\s+\d+(?:[.,]\d+)?\s*$/, "").trim();
+  return text.replace(/\s+(?:\d*[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]+\s+)?\d+(?:[.,]\d+)?(?:\s+\d+(?:[.,]\d+)?)*\s*$/, "").trim();
 }
 
 function scaleText(text, factor) {
@@ -749,11 +749,11 @@ function updateServingsBtn() {
     const v = baseServings * scale;
     const valSpan = label.querySelector("[data-servings-value]");
     if (valSpan) valSpan.textContent = fmtQty(v);
-    else label.textContent = "Serves " + fmtQty(v);
+    else label.textContent = "Servings " + fmtQty(v);
   } else {
     const valSpan = label.querySelector("[data-servings-value]");
     if (valSpan) valSpan.textContent = "?";
-    else label.textContent = "Serves ?";
+    else label.textContent = "Servings ?";
   }
 }
 
