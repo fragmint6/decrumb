@@ -260,10 +260,11 @@ async function loadSavedRecipes() {
 
   if (!savedRecipesCache) {
     savedList.innerHTML = "";
+    savedList.style.display = "";
     for (let i = 0; i < 5; i++) {
       const sk = document.createElement("div");
       sk.className = "skeleton-item";
-      sk.innerHTML = '<div class="skeleton-line skeleton-title"></div><div class="skeleton-line skeleton-host"></div>';
+      sk.innerHTML = '<div class="skeleton-line"></div><div class="skeleton-line skeleton-title"></div><div class="skeleton-line skeleton-host"></div>';
       savedList.appendChild(sk);
     }
     savedEmpty.hidden = true;
@@ -291,9 +292,11 @@ async function loadSavedRecipes() {
 function renderSavedRecipes(recipes) {
   savedList.innerHTML = "";
   if (!recipes.length) {
+    savedList.style.display = "none";
     savedEmpty.hidden = false;
     return;
   }
+  savedList.style.display = "";
   savedEmpty.hidden = true;
   recipes.forEach((r) => {
     const item = document.createElement("div");
@@ -304,17 +307,17 @@ function renderSavedRecipes(recipes) {
     img.alt = "";
     img.loading = "lazy";
     item.appendChild(img);
-    const info = document.createElement("div");
-    info.className = "saved-item-info";
+    const body = document.createElement("div");
+    body.className = "saved-item-body";
     const title = document.createElement("span");
     title.className = "saved-item-title";
     title.textContent = r.data && r.data.title ? r.data.title : "Untitled recipe";
-    info.appendChild(title);
+    body.appendChild(title);
     const src = document.createElement("span");
     src.className = "saved-item-host";
     src.textContent = r.data && r.data.host ? r.data.host : "";
-    info.appendChild(src);
-    item.appendChild(info);
+    body.appendChild(src);
+    item.appendChild(body);
     const del = document.createElement("button");
     del.type = "button";
     del.className = "saved-item-del";
@@ -336,7 +339,7 @@ function renderSavedRecipes(recipes) {
 }
 
 async function deleteRecipe(uid, recipeId) {
-  if (!confirm("Remove this recipe from your saved recipes?")) return;
+  if (!(await showConfirm("Remove this recipe from your saved recipes?"))) return;
   try {
     const user = auth.currentUser;
     if (!user) return;
@@ -702,10 +705,64 @@ function updateServingsBtn() {
   if (!label) return;
   if (baseServings) {
     const v = baseServings * scale;
-    label.textContent = "Serves " + fmtQty(v);
+    const valSpan = label.querySelector("[data-servings-value]");
+    if (valSpan) valSpan.textContent = fmtQty(v);
+    else label.textContent = "Serves " + fmtQty(v);
   } else {
-    label.textContent = "Serves ?";
+    const valSpan = label.querySelector("[data-servings-value]");
+    if (valSpan) valSpan.textContent = "?";
+    else label.textContent = "Serves ?";
   }
+}
+
+function setupEditableServings() {
+  const valSpan = document.querySelector("[data-servings-value]");
+  if (!valSpan) return;
+  valSpan.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      valSpan.blur();
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      const v = baseServings ? baseServings * scale : 0;
+      valSpan.textContent = v ? fmtQty(v) : "?";
+      valSpan.blur();
+    }
+  });
+  valSpan.addEventListener("blur", () => {
+    const val = parseFloat(valSpan.textContent);
+    if (val && val > 0 && baseServings) {
+      scale = val / baseServings;
+      updateServingsBtn();
+      renderIngredients(current);
+    } else {
+      updateServingsBtn();
+    }
+  });
+  valSpan.addEventListener("focus", () => {
+    const sel = window.getSelection();
+    const range = document.createRange();
+    range.selectNodeContents(valSpan);
+    sel.removeAllRanges();
+    sel.addRange(range);
+  });
+}
+
+function showConfirm(msg) {
+  return new Promise(function (resolve) {
+    const overlay = document.createElement("div");
+    overlay.className = "modal";
+    overlay.style.display = "flex";
+    overlay.innerHTML =
+      '<div class="modal-backdrop"></div><div class="modal-content" style="text-align:center;max-width:400px"><p style="margin:0 0 var(--space-lg);font:0.95rem system-ui,sans-serif;line-height:1.5">' +
+      escapeHtml(msg) +
+      '</p><div style="display:flex;gap:0.75rem;justify-content:center"><button class="btn-primary" data-confirm-yes>Remove</button><button class="btn-primary" data-confirm-no style="background:var(--bg);color:var(--text);border:1px solid var(--border)">Cancel</button></div></div>';
+    document.body.appendChild(overlay);
+    overlay.querySelector("[data-confirm-yes]").onclick = function () { overlay.remove(); resolve(true); };
+    overlay.querySelector("[data-confirm-no]").onclick = function () { overlay.remove(); resolve(false); };
+    overlay.querySelector(".modal-backdrop").onclick = function () { overlay.remove(); resolve(false); };
+  });
 }
 
 function escapeHtml(s) {
@@ -719,6 +776,8 @@ function stripTags(html) {
   d.innerHTML = html;
   return d.textContent;
 }
+
+setupEditableServings();
 
 const preset = new URLSearchParams(location.search).get("url");
 if (preset) {

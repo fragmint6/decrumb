@@ -72,10 +72,12 @@
 <div id="saved-popup" class="popup" hidden>
   <div class="popup-backdrop"></div>
   <div class="popup-content">
-    <h2>Saved Recipes</h2>
+    <div class="popup-header">
+      <h2>Saved Recipes</h2>
+      <button id="saved-close" class="popup-close-x" type="button" aria-label="Close"><i class="fa-solid fa-xmark"></i></button>
+    </div>
     <div id="saved-list" class="saved-list"></div>
     <p id="saved-empty" class="saved-empty">No saved recipes yet.</p>
-    <button id="saved-close" class="btn-primary popup-close-btn" type="button">Close</button>
   </div>
 </div>
 
@@ -123,7 +125,7 @@
         </button>
         <span class="servings-group">
           <button type="button" data-act="servings-down" aria-label="Decrease servings">−</button>
-          <span data-servings-label>Serves ?</span>
+          <span data-servings-label>Serves <span data-servings-value contenteditable="true">?</span></span>
           <button type="button" data-act="servings-up" aria-label="Increase servings">+</button>
         </span>
         <a id="r-source" class="src" target="_blank" rel="noopener">View original ↗</a>
