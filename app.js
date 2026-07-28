@@ -652,23 +652,33 @@ function fmtQty(v) {
   if (!isFinite(v) || v <= 0) return "";
   const whole = Math.floor(v + 1e-9);
   const rest = v - whole;
-  const table = [[0.125, "⅛"], [0.25, "¼"], [1 / 3, "⅓"], [0.375, "⅜"], [0.5, "½"],
-                 [0.625, "⅝"], [2 / 3, "⅔"], [0.75, "¾"], [0.875, "⅞"]];
-  for (const [val, glyph] of table) {
-    if (Math.abs(rest - val) < 0.02) return (whole ? whole + " " : "") + glyph;
-  }
   if (rest < 0.02) return String(whole);
-  return String(Math.round(v * 100) / 100);
+  const table = [[0.125, "⅛"], [0.25, "¼"], [1 / 3, "⅓"], [0.375, "⅜"], [0.5, "½"],
+                 [0.625, "⅝"], [2 / 3, "⅔"], [0.75, "¾"], [0.875, "⅞"],
+                 [0.2, "⅕"], [0.4, "⅖"], [0.6, "⅗"], [0.8, "⅘"],
+                 [1 / 6, "⅙"], [5 / 6, "⅚"]];
+  for (const [val, glyph] of table) {
+    if (Math.abs(rest - val) < 0.015) return (whole ? whole + " " : "") + glyph;
+  }
+  for (let d = 2; d <= 32; d++) {
+    const n = Math.round(rest * d);
+    if (Math.abs(rest - n / d) < 0.008) {
+      return (whole ? whole + " " : "") + n + "/" + d;
+    }
+  }
+  return String(whole || "");
 }
 
 function scaleText(text, factor) {
   const safe = escapeHtml(text);
-  return safe.replace(QTY, (m) => {
+  let out = safe.replace(QTY, (m) => {
     const n = parseQty(m);
     if (!n) return m;
-    const out = factor === 1 ? m.trim() : fmtQty(n * factor);
-    return `<span class="qty">${out || m}</span>`;
+    const scaled = factor === 1 ? m.trim() : fmtQty(n * factor);
+    return `<span class="qty">${scaled || m}</span>`;
   });
+  out = out.replace(/\s+(?:\d*\s*)?[½⅓⅔¼¾⅕⅖⅗⅘⅙⅚⅛⅜⅝⅞]\s+\d+(?:[.,]\d+)?\s*$/, "");
+  return out;
 }
 
 /* ---------------- helpers ---------------- */

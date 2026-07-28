@@ -160,25 +160,9 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  background: var(--accent-soft);
   color: var(--accent);
-  border-radius: var(--radius-sm);
-  font-size: 1.1rem;
-  transition: background var(--transition), color var(--transition);
-}
-
-.tagline {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  font-family: system-ui, sans-serif;
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .tagline { display: block; }
+  font-size: 1.2rem;
+  transition: color var(--transition);
 }
 
 .theme-toggle {
@@ -1255,8 +1239,8 @@ ol.steps li.done::before {
   cursor: pointer;
   overflow: hidden;
   white-space: nowrap;
-  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              gap 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+  transition: max-width 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
+              gap 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
               color var(--transition), background var(--transition),
               border-color var(--transition);
   flex-shrink: 0;
@@ -1288,8 +1272,8 @@ ol.steps li.done::before {
   overflow: hidden;
   white-space: nowrap;
   opacity: 0;
-  transition: max-width 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.15s ease 0.12s;
+  transition: max-width 0.45s cubic-bezier(0.25, 0.1, 0.25, 1),
+              opacity 0.3s ease 0.12s;
 }
 
 .icon-btn:hover .icon-btn-label {
