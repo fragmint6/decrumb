@@ -1285,6 +1285,10 @@ ol.steps li.done::before {
   border-color: #f59e0b !important;
 }
 
+.icon-btn[hidden] {
+  display: none !important;
+}
+
 /* ---------- loading overlay ---------- */
 
 .loading-overlay {
